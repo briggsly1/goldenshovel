@@ -1,27 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Placeholder for homepage
     const priceData = document.getElementById('price-data');
+    const miningTeaser = document.querySelector('#mining-teaser p');
+    const apiKey = 'goldapi-2icsmg10ts6c-io'; // Replace with your actual GoldAPI key
+
+    if (miningTeaser) {
+        miningTeaser.innerHTML = 'Sep 26: Canada One Mining advances Copper Dome fieldwork. <a href="/mining.html">Read more</a> (Placeholder)';
+    }
+
     if (priceData) {
         priceData.innerHTML = 'Loading live prices...';
     }
 
-    // GoldAPI fetch
-    fetch('https://www.goldapi.io/api/XAU/USD,CAD,AUD', {
-        headers: {
-            'x-access-token': goldapi-2icsmg10ts6c-io // Replace with your GoldAPI key
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data && data.prices) {
-            const usdPrice = data.prices['USD'].price.toFixed(2);
-            const cadPrice = data.prices['CAD'].price.toFixed(2);
-            const audPrice = data.prices['AUD'].price.toFixed(2);
-            const usdGram = (usdPrice / 31.1035).toFixed(2); // Convert oz to gram
-            const cadGram = (cadPrice / 31.1035).toFixed(2);
-            const audGram = (audPrice / 31.1035).toFixed(2);
+    // Function to fetch price for a currency
+    function fetchPrice(currency) {
+        return fetch(`https://www.goldapi.io/api/XAU/${currency}`, {
+            headers: { 'x-access-token': apiKey }
+        }).then(response => response.json());
+    }
 
-            // Update homepage
+    // Fetch prices for USD, CAD, AUD
+    Promise.all([fetchPrice('USD'), fetchPrice('CAD'), fetchPrice('AUD')])
+        .then(([usdData, cadData, audData]) => {
+            const usdPrice = usdData.price ? usdData.price.toFixed(2) : 'N/A';
+            const cadPrice = cadData.price ? cadData.price.toFixed(2) : 'N/A';
+            const audPrice = audData.price ? audData.price.toFixed(2) : 'N/A';
+
+            const usdGram = usdPrice !== 'N/A' ? (usdPrice / 31.1035).toFixed(2) : 'N/A';
+            const cadGram = cadPrice !== 'N/A' ? (cadPrice / 31.1035).toFixed(2) : 'N/A';
+            const audGram = audPrice !== 'N/A' ? (audPrice / 31.1035).toFixed(2) : 'N/A';
+
             if (priceData) {
                 priceData.innerHTML = `
                     <strong>
@@ -29,38 +36,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         CAD: $${cadPrice}/oz ($${cadGram}/g)<br>
                         AUD: $${audPrice}/oz ($${audGram}/g)
                     </strong>
+                    <p style="font-size: 0.8em; color: gray;">Updated: ${new Date().toLocaleTimeString()}</p>
                 `;
             }
-
-            // Update mining teaser (unchanged)
-            const miningTeaser = document.querySelector('#mining-teaser p');
-            if (miningTeaser) {
-                miningTeaser.innerHTML = 'Sep 26: Canada One Mining advances Copper Dome fieldwork. <a href="/mining.html">Read more</a> (Placeholder)';
+        })
+        .catch(error => {
+            console.error('GoldAPI error:', error);
+            if (priceData) {
+                priceData.innerHTML = '<p style="color: red;">Error loading prices. Check console (F12).</p>';
             }
+        });
 
-            // Update prices page (if on prices.html)
-            const pricesPageData = document.getElementById('price-data');
-            if (pricesPageData && window.location.pathname.includes('prices.html')) {
-                pricesPageData.innerHTML = `
-                    <strong>
-                        USD: $${usdPrice}/oz ($${usdGram}/g)<br>
-                        CAD: $${cadPrice}/oz ($${cadGram}/g)<br>
-                        AUD: $${audPrice}/oz ($${audGram}/g)
-                    </strong>
-                `;
-            }
-        } else {
-            if (priceData) priceData.innerHTML = 'Error loading prices. Try again later.';
-        }
-    })
-    .catch(error => {
-        console.error('GoldAPI error:', error);
-        if (priceData) priceData.innerHTML = 'Error loading prices. Check API key.';
-    });
-
-    // Converter placeholder for prices.html
+    // Converter for prices.html
     window.convert = function() {
         const amount = document.getElementById('amount')?.value || 1;
-        document.getElementById('convert-result').innerHTML = `Converted: ~$${amount * 163} CAD/g (Placeholder - Live API soon)`;
+        document.getElementById('convert-result').innerHTML = `Converted ${amount} oz: ~$${amount * 163} CAD (Placeholder)`;
     };
 });
