@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // GoldAPI fetch
     fetch('https://www.goldapi.io/api/XAU/USD,CAD,AUD', {
         headers: {
-            'x-access-token': 'goldapi-2icsmg10ts6c-io' // Replace with your GoldAPI key
+            'x-access-token': goldapi-2icsmg10ts6c-io // Replace with your GoldAPI key
         }
     })
     .then(response => response.json())
