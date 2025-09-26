@@ -1,0 +1,12 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+header { text-align: center; }
+#prices, #mining-teaser { margin: 20px 0; }
+@media (max-width: 600px) {
+    h1 { font-size: 1.5em; }
+    #price-data { font-size: 0.9em; }
+}
